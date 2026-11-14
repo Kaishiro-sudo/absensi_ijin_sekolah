@@ -20,7 +20,7 @@ RUN a2enmod rewrite
 # Ubah DocumentRoot Apache ke folder public Laravel
 RUN sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-available/000-default.conf
 
-# Ubah port default Apache ke 3000
+# Ubah port default Apache ke 3000 untuk EthioDeploy
 RUN sed -i 's/80/3000/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 
 # Izinkan override konfigurasi direktori untuk .htaccess
@@ -30,14 +30,16 @@ RUN echo '<Directory /var/www/html/public>\n\
     Require all granted\n\
 </Directory>' >> /etc/apache2/apache2.conf
 
-# Tentukan direktori kerja
 WORKDIR /var/www/html
 
-# Salin file project terlebih dahulu agar composer bisa membaca composer.json
-COPY . /var/www/html
+# Salin file composer terlebih dahulu agar dependensi ter-cache dengan baik
+COPY composer.json composer.lock* ./
 
-# Install dependencies Laravel
+# Jalankan composer install untuk mendownload vendor
 RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# Salin seluruh sisa file project
+COPY . .
 
 # Berikan izin akses untuk folder storage dan cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
