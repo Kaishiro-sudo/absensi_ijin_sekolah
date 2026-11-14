@@ -11,8 +11,9 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql gd
 
-# Ubah port default Apache ke port 3000 sesuai EthioDeploy
-RUN sed -i 's/80/3000/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
+# Ubah DocumentRoot Apache ke folder public Laravel dan atur port ke 3000
+RUN sed -i 's/\/var\/www\/html/\/var\/www\/html\/public\/g' /etc/apache2/sites-available/000-default.conf \
+    && sed -i 's/80/3000/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
 
 # Salin seluruh file project ke direktori web server
 COPY . /var/www/html
